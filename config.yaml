@@ -1,0 +1,10 @@
+hydra:
+    run:
+        dir: output/
+
+# defaults:
+#     - cookies
+#   optional: true
+
+user: ???
+pass: ???
