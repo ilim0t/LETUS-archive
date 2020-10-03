@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 from pathlib import Path
-from typing import Dict
+from typing import Dict, cast
 
 import hydra
 import requests
@@ -22,9 +22,13 @@ def main(cfg: DictConfig) -> None:
     if cache_cookie.exists():
         with open(cache_cookie) as f:
             cookies = yaml.safe_load(f)
+            if isinstance(cookies, dict) and all(isinstance(key, str) for key in cookies.keys()) or all(isinstance(value, str) for value in cookies.values()):
+                raise Exception("キャッシュが不適切です。「.cache」ディレクトリを削除してからもう一度お試しください。")
+            cookies = cast(Dict[str, str], cookies)
     else:
         cookies = login(cfg)
 
+    # Cache cookies
     with open(cache_cookie, "w") as f:
         yaml.dump(cookies, f, default_flow_style=False)
 
@@ -32,8 +36,10 @@ def main(cfg: DictConfig) -> None:
 
 
 def login(cfg: DictConfig) -> Dict[str, str]:
-    raise Exception("For debug")
-    res = requests.get("https://letus.ed.tus.ac.jp/login/index.php")
+    LOGIN_URL = "https://letus.ed.tus.ac.jp/login/index.php"
+    assert False, "For debug"
+
+    res = requests.get(LOGIN_URL)
     assert res.status_code == 200
 
     soup = BeautifulSoup(res.text, "html.parser")
@@ -42,13 +48,14 @@ def login(cfg: DictConfig) -> Dict[str, str]:
     assert token_element and "value" in token_element.attrs
     logintoken = token_element.attrs["value"]
 
-    res = requests.post("https://letus.ed.tus.ac.jp/login/index.php", data={
+    content = {
         "username": cfg.user,
         "password": cfg["pass"],
         "rememberusername": 1,
         "anchor": "",
         "logintoken": logintoken
-    }, allow_redirects=False)
+    }
+    res = requests.post(LOGIN_URL, data=content, allow_redirects=False)
     assert res.status_code == 303
 
     cookies = res.cookies.get_dict()
