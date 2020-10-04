@@ -8,10 +8,10 @@ docker run -it --rm -v "$PWD"/config.yaml:/usr/src/app/config.yaml letus-archive
 
 ### Local
 ```sh=
-python src/main.py user=1234567 pass=password
+python src/main.py -O user=1234567 pass=password
 ```
 
 ### pipenv
 ```sh=
-pipenv run python src/main.py user=1234567 pass=password
+pipenv run python src/main.py -O user=1234567 pass=password
 ```

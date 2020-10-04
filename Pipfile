@@ -16,3 +16,7 @@ beautifulsoup4 = "*"
 
 [requires]
 python_version = "3.8"
+
+[scripts]
+lint = "bash -c 'mypy src/ --ignore-missing-imports && flake8 --show-source --exclude .venv --max-line-length 120 src/'"
+format = "bash -c 'isort src/ && autopep8 --max-line-length 120 -ivr src/'"
